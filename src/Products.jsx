@@ -1,40 +1,30 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { Link } from "react-router-dom";
+
+const fetchProducts = async () => {
+  const response = await fetch("https://dummyjson.com/products");
+  const data = await response.json();
+
+  return data.products;
+};
 
 const Products = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    isLoading,
+    error,
+    data: products,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+    staleTime: 10000,
+  });
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-
-        setLoading(true);
-        setError(null);
-
-        const response = await fetch("https://dummyjson.com/productss");
-        const data = await response.json();
-
-        setProducts(data.products);
-        setLoading(false);
-
-      } catch (err) {
-
-        setError(err.message);
-        setLoading(false);
-
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
-  if(loading) {
-    return <h3>Loading...</h3>
+  if (isLoading) {
+    return <h3>Loading...</h3>;
   }
 
-  if(error) {
-    return <h3>{error}</h3>
+  if (error) {
+    return <h3>{error.message}</h3>;
   }
 
   return (
@@ -57,10 +47,10 @@ const Products = () => {
               <div className="mt-4 flex justify-between">
                 <div>
                   <h3 className="text-sm text-gray-700">
-                    <a href="">
+                    <Link to={`/products/${product.id}`}>
                       <span aria-hidden="true" className="absolute inset-0" />
                       {product.title}
-                    </a>
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     {product.category}
